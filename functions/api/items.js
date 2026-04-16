@@ -1,13 +1,13 @@
 // ============================================================
 // functions/api/items.js
 // GET /api/items?cat=xxx  →  { items: [...] }
-// Mirrors the PHP fetchAndDecrypt logic using Web Crypto API
 // ============================================================
 
 const API_KEY_HEX  = '4E5C6D1A8B3FE8137A3B9DF26A9C4DE195267B8E6F6C0B4E1C3AE1D27F2B4E6F';
 const API_IV_HEX   = 'A9C21F8D7E6B4A9DB12E4F9D5C1A7B8E';
 const API_ID       = '714b6955acb12a33';
-const BASE_DOMAIN  = 'sa007.shop';
+// التعديل هنا: النطاق الجديد
+const BASE_DOMAIN  = 'sa003.shop';
 
 function hexToBytes(hex) {
     const arr = new Uint8Array(hex.length / 2);
@@ -15,7 +15,8 @@ function hexToBytes(hex) {
     return arr;
 }
 
-function generateRandomString(length = 40) {
+// تعديل الطول الافتراضي ليكون 56 حرفاً كما في الرابط الجديد
+function generateRandomString(length = 56) {
     const chars = '0123456789abcdefghijklmnopqrstuvwxyz';
     let s = '';
     const arr = new Uint8Array(length);
@@ -42,7 +43,9 @@ async function decryptAES256CBC(encryptedBytes) {
 
 async function fetchAndDecrypt(apiPath) {
     const subdomain = generateRandomString();
-    const url = `https://${subdomain}.${BASE_DOMAIN}${apiPath}`;
+    // الرابط يتكون من (سلسلة عشوائية + . + sa003.shop + المسار)
+    const url = https://${subdomain}.${BASE_DOMAIN}${apiPath};
+    
     try {
         const res = await fetch(url, {
             headers: {
@@ -57,6 +60,7 @@ async function fetchAndDecrypt(apiPath) {
         const decrypted = await decryptAES256CBC(buf);
         return JSON.parse(decrypted);
     } catch (e) {
+        console.error("Fetch error:", e);
         return null;
     }
 }
@@ -64,7 +68,7 @@ async function fetchAndDecrypt(apiPath) {
 async function checkAuth(request, env) {
     const token = request.headers.get('x-auth') || '';
     if (!env.IPTV_KV) return true;
-    const val = await env.IPTV_KV.get(`token:${token}`);
+    const val = await env.IPTV_KV.get(token:${token});
     return val === '1';
 }
 
@@ -74,10 +78,11 @@ export async function onRequestGet({ request, env }) {
     }
 
     const url = new URL(request.url);
-    const cat = url.searchParams.get('cat') || '';
+    const cat = url.searchParams.get('cat');
 
+    // إذا كان هناك تصنيف (cat) سيتم طلبه، وإلا سيطلب الصفحة الرئيسية (main)
     const apiPath = cat
-        ? `/api/v6.2/category/${cat}?page=1`
+        ? /api/v6.2/category/${cat}?page=1
         : '/api/v6.2/main?page=1';
 
     const data = await fetchAndDecrypt(apiPath);
@@ -85,4 +90,4 @@ export async function onRequestGet({ request, env }) {
 
     const items = data?.data?.items ?? data?.data ?? [];
     return Response.json({ items });
-}
+        }
