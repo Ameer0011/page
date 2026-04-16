@@ -1,9 +1,0 @@
-{
-    "status": "ok",
-    "channels": [
-        {
-            "name": "Test",
-            "url": "https:\/\/example.com\/stream.m3u8"
-        }
-    ]
-}
