@@ -7,7 +7,7 @@
 const API_KEY_HEX  = '4E5C6D1A8B3FE8137A3B9DF26A9C4DE195267B8E6F6C0B4E1C3AE1D27F2B4E6F';
 const API_IV_HEX   = 'A9C21F8D7E6B4A9DB12E4F9D5C1A7B8E';
 const API_ID       = '714b6955acb12a33';
-const BASE_DOMAIN  = 'xp-2.top';
+const BASE_DOMAIN  = 'sa007.shop';
 
 function hexToBytes(hex) {
     const arr = new Uint8Array(hex.length / 2);
